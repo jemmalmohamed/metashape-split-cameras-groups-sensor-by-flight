@@ -142,7 +142,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
         if self.chkRemove.isChecked():
             print('Flights chunks removing...')
-            doc.remove(list_of_new_chunk)
+            doc.remove(chunks=list_of_new_chunk)
         print("Script finished!")
         self.close()
         return True

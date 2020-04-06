@@ -34,12 +34,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         self.spinX.setMinimum(1)
         self.spinX.setValue(10)
 
-        self.chkMerge = QtWidgets.QCheckBox("Merge Flights Chunks")
-        self.chkMerge.stateChanged.connect(self.toggleChkRemove)
-        self.spinX.setFixedSize(100, 25)
-
-        self.chkRemove = QtWidgets.QCheckBox("Remove Flights Chunks")
-        self.chkRemove.setEnabled(False)
+        self.chkMerge = QtWidgets.QCheckBox("Merge Chunk")
         self.spinX.setFixedSize(100, 25)
 
         self.btnQuit = QtWidgets.QPushButton("Cancel")
@@ -49,15 +44,12 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         self.btnP1.setFixedSize(100, 23)
 
         layout = QtWidgets.QGridLayout()  # creating layout
-
         layout.addWidget(self.label_time, 1, 1)
         layout.addWidget(self.spinX, 1, 2)
         layout.addWidget(self.chkMerge, 2, 1)
-        layout.addWidget(self.chkRemove, 2, 2)
 
         layout.addWidget(self.btnP1, 3, 1)
         layout.addWidget(self.btnQuit, 3, 2)
-
         self.setLayout(layout)
 
         def proc_split(): return self.splitCamerasSensor()
@@ -70,27 +62,20 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
         self.exec()
 
-    def toggleChkRemove(self, state):
-
-        if state > 0:
-            self.chkRemove.setEnabled(True)
-        else:
-            self.chkRemove.setEnabled(False)
-
     def add_new_chunk(self, images, nb):
         doc = Metashape.app.document
         new_chunk = doc.addChunk()
         new_chunk.label = 'flight ' + str(nb)
         new_chunk.addPhotos(images)
-        return new_chunk
 
     def splitCamerasSensor(self):
-        print("Import Cameras Script started...")
         time_between_flight = self.spinX.value() * 60
+        print(time_between_flight)
 
-        list_of_keys_new_chunk = []
+        print("Import Cameras Script started...")
+
         list_of_new_chunk = []
-
+        # doc = Metashape.app.document
         chunk = Metashape.app.document.chunk
         print('Total photos {} : '.format(len(chunk.cameras)))
 
@@ -122,7 +107,6 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                         i, len(image_list_by_battery)))
                     new_chunk = self.add_new_chunk(image_list_by_battery, i)
                     list_of_new_chunk.append(new_chunk)
-                    list_of_keys_new_chunk.append(new_chunk.key)
 
             else:
                 image_list_by_battery.append(c.photo.path)
@@ -131,18 +115,14 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                     i, len(image_list_by_battery)))
                 new_chunk = self.add_new_chunk(image_list_by_battery, i)
                 list_of_new_chunk.append(new_chunk)
-                list_of_keys_new_chunk.append(new_chunk.key)
                 image_list_by_battery = []
 
             date_previous = date_current
 
         if self.chkMerge.isChecked():
             print('merging flights ....')
-            doc.mergeChunks(chunks=list_of_keys_new_chunk)
-
-        if self.chkRemove.isChecked():
-            print('Flights chunks removing...')
-            doc.remove(list_of_new_chunk)
+            print(len(list_of_new_chunk))
+            # doc.mergeChunks(list_of_new_chunk)
         print("Script finished!")
         self.close()
         return True

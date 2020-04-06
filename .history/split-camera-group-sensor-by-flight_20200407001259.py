@@ -85,12 +85,12 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         return new_chunk
 
     def splitCamerasSensor(self):
-        print("Import Cameras Script started...")
         time_between_flight = self.spinX.value() * 60
 
-        list_of_keys_new_chunk = []
-        list_of_new_chunk = []
+        print("Import Cameras Script started...")
 
+        list_of_new_chunk = []
+        # doc = Metashape.app.document
         chunk = Metashape.app.document.chunk
         print('Total photos {} : '.format(len(chunk.cameras)))
 
@@ -121,7 +121,6 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                     print('Flight {} : {} Photos'.format(
                         i, len(image_list_by_battery)))
                     new_chunk = self.add_new_chunk(image_list_by_battery, i)
-                    list_of_new_chunk.append(new_chunk)
                     list_of_keys_new_chunk.append(new_chunk.key)
 
             else:
@@ -130,7 +129,6 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                 print('Flight {} : {} Photos'.format(
                     i, len(image_list_by_battery)))
                 new_chunk = self.add_new_chunk(image_list_by_battery, i)
-                list_of_new_chunk.append(new_chunk)
                 list_of_keys_new_chunk.append(new_chunk.key)
                 image_list_by_battery = []
 
@@ -142,7 +140,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
         if self.chkRemove.isChecked():
             print('Flights chunks removing...')
-            doc.remove(list_of_new_chunk)
+            doc.remove(chunks=list_of_new_chunk)
         print("Script finished!")
         self.close()
         return True
