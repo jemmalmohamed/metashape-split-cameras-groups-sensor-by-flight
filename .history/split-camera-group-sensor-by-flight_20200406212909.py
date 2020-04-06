@@ -32,7 +32,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
             'Minimum time between flights (min): ')
         self.spinX = QtWidgets.QSpinBox()
         self.spinX.setMinimum(1)
-        self.spinX.setValue(10)
+        self.spinX.setValue(15)
 
         self.chkMerge = QtWidgets.QCheckBox("Merge Chunk")
         self.spinX.setFixedSize(100, 25)
@@ -52,7 +52,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         layout.addWidget(self.btnQuit, 3, 2)
         self.setLayout(layout)
 
-        def proc_split(): return self.splitCamerasSensor()
+        def proc_split(): return self.splitCemarasSensor()
 
         QtCore.QObject.connect(
             self.btnP1, QtCore.SIGNAL("clicked()"), proc_split)
@@ -62,66 +62,62 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
         self.exec()
 
-    def add_new_chunk(self, images, nb):
-        doc = Metashape.app.document
-        new_chunk = doc.addChunk()
-        new_chunk.label = 'flight ' + str(nb)
-        new_chunk.addPhotos(images)
+    def create_new_sensor(self, initialSensor, chunk, label):
 
-    def splitCamerasSensor(self):
-        time_between_flight = self.spinX.value() * 60
-        print(time_between_flight)
+        sensor = chunk.addSensor()
+        sensor.label = label
+        sensor.bands = camera.sensor.bands
+        sensor.type = Metashape.Sensor.Type.Frame
+        sensor.focal_length = camera.sensor.focal_length
+        sensor.height = camera.sensor.height
+        sensor.width = camera.sensor.width
+        sensor.pixel_size = camera.sensor.pixel_size
+        calibration = Metashape.Calibration()
+        calibration.width = sensor.width
+        calibration.height = sensor.height
 
+        return sensor
+
+    def splitCemarasSensor(self):
+        time_between_flight = self.spinX.value * 60
         print("Import Cameras Script started...")
 
-        # doc = Metashape.app.document
+        path_sahpe = '//Desktop-cmg-ws1/data_1/D_LPS/programme_PVA/projet_total.kml'
+
         chunk = Metashape.app.document.chunk
-        print('Total photos {} : '.format(len(chunk.cameras)))
-
-        date_previous = chunk.cameras[0].photo.meta['Exif/DateTime']
-        date_previous = datetime.datetime.strptime(
-            date_previous, '%Y:%m:%d %H:%M:%S')
+        shapes = chunk.shapes
+        doc = Metashape.app.document
+        previous_date = chunk.cameras[0].photo.meta['Exif/DateTime']
+        previous_date = datetime.datetime.strptime(
+            previous_date, '%Y:%m:%d %H:%M:%S')
         image_list_by_battery = []
+        for c in chunk.cameras:
 
-        sorted_cameras = sorted(chunk.cameras,
-                                key=lambda camera: camera.photo.meta['Exif/DateTime'])
+            date_camera = c.photo.meta['Exif/DateTime']
+            date = datetime.datetime.strptime(
+                date_camera, '%Y:%m:%d %H:%M:%S')
 
-        print('Sorted Photos by time : {}'.format(
-            len(sorted_cameras)))
-        i = 0
-        for c in sorted_cameras:
-
-            date_current = c.photo.meta['Exif/DateTime']
-            date_current = datetime.datetime.strptime(
-                date_current, '%Y:%m:%d %H:%M:%S')
-
-            sec = (date_current-date_previous).total_seconds()
+            sec = (date-previous_date).total_seconds()
 
             if(sec < time_between_flight):
                 image_list_by_battery.append(c.photo.path)
-                if c == sorted_cameras[-1]:
-                    print('last flight')
-                    i = i+1
-                    print('Flight {} : {} Photos'.format(
-                        i, len(image_list_by_battery)))
-                    self.add_new_chunk(image_list_by_battery, i)
 
             else:
-                image_list_by_battery.append(c.photo.path)
-                i = i + 1
-                print('Flight {} : {} Photos'.format(
-                    i, len(image_list_by_battery)))
-                self.add_new_chunk(image_list_by_battery, i)
+                new_chunk = doc.addChunk()
+
+                new_chunk.addPhotos(image_list_by_battery)
+                new_chunk.importShapes(path_sahpe)
                 image_list_by_battery = []
 
-            date_previous = date_current
+            previous_date = date
+
+        # print(image_list_by_battery)
 
         print("Script finished!")
-        self.close()
         return True
 
 
-def splitCamerasSensor():
+def splitCemarasSensor():
     global doc
 
     doc = Metashape.app.document
@@ -133,5 +129,5 @@ def splitCamerasSensor():
 
 
 label = "Custom menu/Split Cameras group sensor by Flights"
-Metashape.app.addMenuItem(label, splitCamerasSensor)
+Metashape.app.addMenuItem(label, splitCemarasSensor)
 print("To execute this script press {}".format(label))

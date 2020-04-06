@@ -107,14 +107,13 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                     self.add_new_chunk(image_list_by_battery, i)
 
             else:
-                image_list_by_battery.append(c.photo.path)
                 i = i + 1
                 print('Flight {} : {} Photos'.format(
                     i, len(image_list_by_battery)))
                 self.add_new_chunk(image_list_by_battery, i)
                 image_list_by_battery = []
 
-            date_previous = date_current
+            previous_date = date
 
         print("Script finished!")
         self.close()

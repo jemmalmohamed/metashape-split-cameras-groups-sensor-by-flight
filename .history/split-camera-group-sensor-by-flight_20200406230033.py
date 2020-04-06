@@ -78,24 +78,24 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         chunk = Metashape.app.document.chunk
         print('Total photos {} : '.format(len(chunk.cameras)))
 
-        date_previous = chunk.cameras[0].photo.meta['Exif/DateTime']
-        date_previous = datetime.datetime.strptime(
-            date_previous, '%Y:%m:%d %H:%M:%S')
+        previous_date = chunk.cameras[0].photo.meta['Exif/DateTime']
+        previous_date = datetime.datetime.strptime(
+            previous_date, '%Y:%m:%d %H:%M:%S')
         image_list_by_battery = []
 
         sorted_cameras = sorted(chunk.cameras,
                                 key=lambda camera: camera.photo.meta['Exif/DateTime'])
 
-        print('Sorted Photos by time : {}'.format(
+        print('Sorted Photos by time'.format(
             len(sorted_cameras)))
         i = 0
         for c in sorted_cameras:
 
-            date_current = c.photo.meta['Exif/DateTime']
-            date_current = datetime.datetime.strptime(
-                date_current, '%Y:%m:%d %H:%M:%S')
+            date_camera = c.photo.meta['Exif/DateTime']
+            date = datetime.datetime.strptime(
+                date_camera, '%Y:%m:%d %H:%M:%S')
 
-            sec = (date_current-date_previous).total_seconds()
+            sec = (date-previous_date).total_seconds()
 
             if(sec < time_between_flight):
                 image_list_by_battery.append(c.photo.path)
@@ -107,14 +107,13 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                     self.add_new_chunk(image_list_by_battery, i)
 
             else:
-                image_list_by_battery.append(c.photo.path)
                 i = i + 1
                 print('Flight {} : {} Photos'.format(
                     i, len(image_list_by_battery)))
                 self.add_new_chunk(image_list_by_battery, i)
                 image_list_by_battery = []
 
-            date_previous = date_current
+            previous_date = date
 
         print("Script finished!")
         self.close()

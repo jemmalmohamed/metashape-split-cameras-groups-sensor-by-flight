@@ -107,7 +107,6 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
                     self.add_new_chunk(image_list_by_battery, i)
 
             else:
-                image_list_by_battery.append(c.photo.path)
                 i = i + 1
                 print('Flight {} : {} Photos'.format(
                     i, len(image_list_by_battery)))
