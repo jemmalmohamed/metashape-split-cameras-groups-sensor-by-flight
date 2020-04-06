@@ -25,8 +25,8 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         QtWidgets.QDialog.__init__(self, parent)
 
         self.setWindowTitle(
-            "SPLIT CEMARAS CALIBRATION GROUP SENSOR BY FLIGHT , BY CMG")
-        self.resize(300, 150)
+            "SPLIT CAMERAS CALIBRATION GROUPS SENSORS BY FLIGHT , CMG (MAROC)")
+        self.resize(550, 150)
 
         self.label_time = QtWidgets.QLabel(
             'Minimum time between flights (min): ')
@@ -35,10 +35,14 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         self.spinX.setValue(10)
 
         self.chkMerge = QtWidgets.QCheckBox("Merge Flights Chunks")
+        self.chkMerge.setToolTip(
+            "Merge chunks to have group sensors per flight")
         self.chkMerge.stateChanged.connect(self.toggleChkRemove)
         self.spinX.setFixedSize(100, 25)
 
         self.chkRemove = QtWidgets.QCheckBox("Remove Flights Chunks")
+        self.chkRemove.setToolTip(
+            "Remove chunks after merging flights chunks")
         self.chkRemove.setEnabled(False)
         self.spinX.setFixedSize(100, 25)
 
@@ -159,6 +163,6 @@ def splitCamerasSensor():
     dlg = SplitCameraGroupSensorByFlightDlg(parent)
 
 
-label = "Custom menu/Split Cameras group sensor by Flights"
+label = "Custom menu/Split Cameras Groups Sensor y Flights"
 Metashape.app.addMenuItem(label, splitCamerasSensor)
 print("To execute this script press {}".format(label))
