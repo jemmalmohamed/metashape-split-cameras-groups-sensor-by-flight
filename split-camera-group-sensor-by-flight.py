@@ -29,10 +29,10 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         self.resize(550, 150)
 
         self.label_time = QtWidgets.QLabel(
-            'Maximum time between photos (minseconds): ')
+            'Maximum time between photos (seconds): ')
         self.spinX = QtWidgets.QSpinBox()
         self.spinX.setMinimum(1)
-        self.spinX.setValue(3)
+        self.spinX.setValue(60)
 
         self.chkMerge = QtWidgets.QCheckBox("Merge Flights Chunks")
         self.chkMerge.setToolTip(
