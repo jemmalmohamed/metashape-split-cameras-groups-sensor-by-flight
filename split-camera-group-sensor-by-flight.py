@@ -29,10 +29,10 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         self.resize(550, 150)
 
         self.label_time = QtWidgets.QLabel(
-            'Minimum time between flights (min): ')
+            'Maximum time between photos (minseconds): ')
         self.spinX = QtWidgets.QSpinBox()
         self.spinX.setMinimum(1)
-        self.spinX.setValue(10)
+        self.spinX.setValue(3)
 
         self.chkMerge = QtWidgets.QCheckBox("Merge Flights Chunks")
         self.chkMerge.setToolTip(
@@ -90,7 +90,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
     def splitCamerasSensor(self):
         print("Import Cameras Script started...")
-        time_between_flight = self.spinX.value() * 60
+        time_between_photos = self.spinX.value()
 
         list_of_keys_new_chunk = []
         list_of_new_chunk = []
@@ -101,7 +101,7 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
         date_previous = chunk.cameras[0].photo.meta['Exif/DateTime']
         date_previous = datetime.datetime.strptime(
             date_previous, '%Y:%m:%d %H:%M:%S')
-        image_list_by_battery = []
+        image_list_by_flight = []
 
         sorted_cameras = sorted(chunk.cameras,
                                 key=lambda camera: camera.photo.meta['Exif/DateTime'])
@@ -117,26 +117,26 @@ class SplitCameraGroupSensorByFlightDlg(QtWidgets.QDialog):
 
             sec = (date_current-date_previous).total_seconds()
 
-            if(sec < time_between_flight):
-                image_list_by_battery.append(c.photo.path)
+            if(sec < time_between_photos):
+                image_list_by_flight.append(c.photo.path)
                 if c == sorted_cameras[-1]:
                     print('last flight')
                     i = i+1
                     print('Flight {} : {} Photos'.format(
-                        i, len(image_list_by_battery)))
-                    new_chunk = self.add_new_chunk(image_list_by_battery, i)
+                        i, len(image_list_by_flight)))
+                    new_chunk = self.add_new_chunk(image_list_by_flight, i)
                     list_of_new_chunk.append(new_chunk)
                     list_of_keys_new_chunk.append(new_chunk.key)
 
             else:
-                image_list_by_battery.append(c.photo.path)
                 i = i + 1
                 print('Flight {} : {} Photos'.format(
-                    i, len(image_list_by_battery)))
-                new_chunk = self.add_new_chunk(image_list_by_battery, i)
+                    i, len(image_list_by_flight)))
+                new_chunk = self.add_new_chunk(image_list_by_flight, i)
                 list_of_new_chunk.append(new_chunk)
                 list_of_keys_new_chunk.append(new_chunk.key)
-                image_list_by_battery = []
+                image_list_by_flight = []
+                image_list_by_flight.append(c.photo.path)
 
             date_previous = date_current
 
